@@ -9,6 +9,7 @@ import {
 import { useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
 import ClimateChart from "./components/ClimateChart";
+import WildlifeChart from "./components/WildlifeChart";
 import { reserves } from "./data/reserves";
 import "./App.css";
 
@@ -24,6 +25,7 @@ function App() {
   const [activeEvidence, setActiveEvidence] = useState("");
   const evidenceRef = useRef(null);
   const climateEvidenceRef = useRef(null);
+  const wildlifeEvidenceRef = useRef(null);
 
   const reserve = reserves[selectedReserveId];
 
@@ -46,6 +48,10 @@ function App() {
 
   function showClimateEvidence() {
     showEvidence("climate", climateEvidenceRef);
+  }
+
+  function showWildlifeEvidence() {
+    showEvidence("wildlife", wildlifeEvidenceRef);
   }
 
   function handleReserveChange(event) {
@@ -99,18 +105,41 @@ function App() {
           return (
             <article
               className={`vital-card ${sign.status} ${
-                sign.id === "climate" ? "clickable-card" : ""
+                sign.id === "climate" || sign.id === "wildlife"
+                  ? "clickable-card"
+                  : ""
               }`}
               key={sign.id}
-              onClick={sign.id === "climate" ? showClimateEvidence : undefined}
-              role={sign.id === "climate" ? "button" : undefined}
-              tabIndex={sign.id === "climate" ? 0 : undefined}
+              onClick={
+                sign.id === "climate"
+                  ? showClimateEvidence
+                  : sign.id === "wildlife"
+                    ? showWildlifeEvidence
+                    : undefined
+              }
+              role={
+                sign.id === "climate" || sign.id === "wildlife"
+                  ? "button"
+                  : undefined
+              }
+              tabIndex={
+                sign.id === "climate" || sign.id === "wildlife" ? 0 : undefined
+              }
               onKeyDown={(event) => {
+                const canOpenEvidence =
+                  sign.id === "climate" || sign.id === "wildlife";
+
                 if (
-                  sign.id === "climate" &&
+                  canOpenEvidence &&
                   (event.key === "Enter" || event.key === " ")
                 ) {
-                  showClimateEvidence();
+                  if (sign.id === "climate") {
+                    showClimateEvidence();
+                  }
+
+                  if (sign.id === "wildlife") {
+                    showWildlifeEvidence();
+                  }
                 }
               }}
             >
@@ -168,7 +197,21 @@ function App() {
           <button className="evidence-link" type="button">
             {reserve.summary.climateClaim}
           </button>
-          {reserve.summary.ending}
+          {reserve.summary.ending.includes("Wildlife observation activity") ? (
+            <>
+              {reserve.summary.ending.split("Wildlife observation activity")[0]}
+              <button
+                className="evidence-link"
+                type="button"
+                onClick={showWildlifeEvidence}
+              >
+                Wildlife observation activity
+              </button>
+              {reserve.summary.ending.split("Wildlife observation activity")[1]}
+            </>
+          ) : (
+            reserve.summary.ending
+          )}
         </p>
 
         <div className="summary-footer">
@@ -201,6 +244,15 @@ function App() {
         }`}
       >
         <ClimateChart climate={reserve.climate} />
+      </section>
+
+      <section
+        ref={wildlifeEvidenceRef}
+        className={`evidence-section ${
+          activeEvidence === "wildlife" ? "evidence-active" : ""
+        }`}
+      >
+        <WildlifeChart wildlife={reserve.wildlife} />
       </section>
     </main>
   );

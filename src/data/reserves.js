@@ -96,6 +96,29 @@ export const reserves = {
         { month: "Apr '26", rainfall: 39, baseline: 62 },
         { month: "May '26", rainfall: 31, baseline: 62 },
       ],
+        },
+
+    wildlife: {
+      title: "Wildlife Observation Activity",
+      description:
+        "Monthly GBIF occurrence-record activity remained broadly stable during the selected monitoring period.",
+      baselineLabel: "Six-month record baseline",
+      baseline: 34,
+      confidence: "Limited confidence",
+      source: "GBIF occurrence records",
+      method: "Monthly georeferenced occurrence-record count",
+      limitation:
+        "Record counts reflect observation and reporting activity, not wildlife population size.",
+      unit: "records",
+      data: [
+        { month: "Nov '25", records: 35, baseline: 34 },
+        { month: "Dec '25", records: 33, baseline: 34 },
+        { month: "Jan '26", records: 36, baseline: 34 },
+        { month: "Feb '26", records: 31, baseline: 34 },
+        { month: "Mar '26", records: 34, baseline: 34 },
+        { month: "Apr '26", records: 35, baseline: 34 },
+        { month: "May '26", records: 33, baseline: 34 },
+      ],
     },
   },
 
@@ -196,6 +219,29 @@ export const reserves = {
         { month: "Mar '26", rainfall: 41, baseline: 48 },
         { month: "Apr '26", rainfall: 44, baseline: 48 },
         { month: "May '26", rainfall: 45, baseline: 48 },
+      ],
+        },
+
+    wildlife: {
+      title: "Wildlife Observation Activity",
+      description:
+        "Monthly GBIF occurrence-record activity increased during the selected monitoring period.",
+      baselineLabel: "Six-month record baseline",
+      baseline: 18,
+      confidence: "Limited confidence",
+      source: "GBIF occurrence records",
+      method: "Monthly georeferenced occurrence-record count",
+      limitation:
+        "Record counts reflect observation and reporting activity, not wildlife population size.",
+      unit: "records",
+      data: [
+        { month: "Nov '25", records: 11, baseline: 18 },
+        { month: "Dec '25", records: 13, baseline: 18 },
+        { month: "Jan '26", records: 15, baseline: 18 },
+        { month: "Feb '26", records: 17, baseline: 18 },
+        { month: "Mar '26", records: 19, baseline: 18 },
+        { month: "Apr '26", records: 22, baseline: 18 },
+        { month: "May '26", records: 25, baseline: 18 },
       ],
     },
   },
