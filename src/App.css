@@ -615,3 +615,21 @@ button {
     font-size: 1.9rem;
   }
 }
+
+.signal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warning .signal-icon {
+  color: #fbbf24;
+}
+
+.critical .signal-icon {
+  color: #f87171;
+}
+
+.healthy .signal-icon {
+  color: #4ade80;
+}

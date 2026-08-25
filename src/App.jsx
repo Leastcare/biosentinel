@@ -1,10 +1,11 @@
+import { Activity, Flame, Leaf, PawPrint, Thermometer } from "lucide-react";
 import { useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
 import "./App.css";
 
 const vitalSigns = [
   {
-    icon: "🌿",
+    icon: Leaf,
     value: "-12%",
     direction: "↓",
     label: "Vegetation Health",
@@ -12,7 +13,7 @@ const vitalSigns = [
     status: "warning",
   },
   {
-    icon: "🌡",
+    icon: Thermometer,
     value: "Elevated",
     direction: "↑",
     label: "Climate Stress",
@@ -20,7 +21,7 @@ const vitalSigns = [
     status: "critical",
   },
   {
-    icon: "🐾",
+    icon: PawPrint,
     value: "Stable",
     direction: "→",
     label: "Wildlife Activity",
@@ -28,7 +29,7 @@ const vitalSigns = [
     status: "healthy",
   },
   {
-    icon: "🔥",
+    icon: Flame,
     value: "Low",
     direction: "↓",
     label: "Disturbance Risk",
@@ -36,7 +37,6 @@ const vitalSigns = [
     status: "healthy",
   },
 ];
-
 function App() {
   const [activeEvidence, setActiveEvidence] = useState(false);
   const evidenceRef = useRef(null);
@@ -89,7 +89,9 @@ function App() {
           <article className={`vital-card ${sign.status}`} key={sign.label}>
             <div className="signal-line" />
             <div className="card-top">
-              <span className="signal-icon">{sign.icon}</span>
+              <span className="signal-icon">
+                <sign.icon size={23} strokeWidth={1.9} />
+              </span>
               <span className="signal-state">{sign.status}</span>
             </div>
 
