@@ -1,122 +1,154 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useRef, useState } from "react";
+import NDVIChart from "./components/NDVIChart";
+import "./App.css";
+
+const vitalSigns = [
+  {
+    icon: "🌿",
+    value: "-12%",
+    direction: "↓",
+    label: "Vegetation Health",
+    caption: "vs. 6-month baseline",
+    status: "warning",
+  },
+  {
+    icon: "🌡",
+    value: "Elevated",
+    direction: "↑",
+    label: "Climate Stress",
+    caption: "Current status",
+    status: "critical",
+  },
+  {
+    icon: "🐾",
+    value: "Stable",
+    direction: "→",
+    label: "Wildlife Activity",
+    caption: "Observation activity proxy",
+    status: "healthy",
+  },
+  {
+    icon: "🔥",
+    value: "Low",
+    direction: "↓",
+    label: "Disturbance Risk",
+    caption: "Recent thermal alerts",
+    status: "healthy",
+  },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeEvidence, setActiveEvidence] = useState(false);
+  const evidenceRef = useRef(null);
 
+  function showVegetationEvidence() {
+    setActiveEvidence(true);
+
+    evidenceRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    window.setTimeout(() => {
+      setActiveEvidence(false);
+    }, 2200);
+  }
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <main className="app-shell">
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-mark">⌁</div>
+          <span>BioSentinel</span>
         </div>
+
+        <button className="reserve-selector" type="button">
+          <span className="location-dot">⌖</span>
+          Amboseli National Reserve
+          <span className="chevron">⌄</span>
+        </button>
+      </header>
+
+      <section className="hero">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+          <p className="eyebrow">ECOSYSTEM VITAL SIGNS</p>
+          <h1>Amboseli National Reserve</h1>
+          <p className="subtitle">
+            An evidence-linked ecosystem check-up using the latest available
+            environmental signals.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+        <div className="data-status">
+          <span className="live-dot" />
+          Data snapshot: 20 Aug 2026
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <section className="vital-grid" aria-label="Ecosystem vital signs">
+        {vitalSigns.map((sign) => (
+          <article className={`vital-card ${sign.status}`} key={sign.label}>
+            <div className="signal-line" />
+            <div className="card-top">
+              <span className="signal-icon">{sign.icon}</span>
+              <span className="signal-state">{sign.status}</span>
+            </div>
+
+            <div className="reading-row">
+              <span className="reading">{sign.value}</span>
+              <span className="trend-arrow">{sign.direction}</span>
+            </div>
+
+            <h2>{sign.label}</h2>
+            <p>{sign.caption}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="summary-panel">
+        <div className="summary-heading">
+          <span className="sparkle">✦</span>
+          <h2>AI Ecosystem Summary</h2>
+        </div>
+
+        <p>
+          Vegetation vigor has{" "}
+          <button
+            className="evidence-link"
+            type="button"
+            onClick={showVegetationEvidence}
+          >
+            declined by 12%
+          </button>{" "}
+          compared with the six-month baseline, alongside{" "}
+          <button className="evidence-link" type="button">
+            below-average rainfall
+          </button>{" "}
+          and prolonged dry conditions. Climate stress remains{" "}
+          <button className="evidence-link" type="button">
+            elevated
+          </button>
+          . Wildlife observation activity is stable, while disturbance risk is
+          low.
+        </p>
+
+        <div className="summary-footer">
+          <span>
+            Every highlighted claim can be verified against its source data.
+          </span>
+          <button className="evidence-button" type="button">
+            View evidence <span>→</span>
+          </button>
+        </div>
+      </section>
+
+      <section
+        ref={evidenceRef}
+        className={`evidence-section ${activeEvidence ? "evidence-active" : ""}`}
+      >
+        <NDVIChart />
+      </section>
+    </main>
+  );
 }
 
-export default App
+export default App;
