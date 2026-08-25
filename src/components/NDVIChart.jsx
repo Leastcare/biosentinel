@@ -10,17 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
-const ndviData = [
-  { month: "Nov '25", ndvi: 0.65, baseline: 0.6 },
-  { month: "Dec '25", ndvi: 0.68, baseline: 0.6 },
-  { month: "Jan '26", ndvi: 0.66, baseline: 0.6 },
-  { month: "Feb '26", ndvi: 0.61, baseline: 0.6 },
-  { month: "Mar '26", ndvi: 0.56, baseline: 0.6 },
-  { month: "Apr '26", ndvi: 0.51, baseline: 0.6 },
-  { month: "May '26", ndvi: 0.45, baseline: 0.6 },
-];
-
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload, label, baseline }) {
   if (!active || !payload?.length) {
     return null;
   }
@@ -31,34 +21,38 @@ function CustomTooltip({ active, payload, label }) {
     <div className="chart-tooltip">
       <p>{label}</p>
       <span>NDVI: {ndviPoint?.value?.toFixed(2)}</span>
-      <span>Baseline: 0.60</span>
+      <span>Baseline: {baseline.toFixed(2)}</span>
     </div>
   );
 }
 
-function NDVIChart() {
+function NDVIChart({ ndvi }) {
+  const values = ndvi.data.map((point) => point.ndvi);
+  const minValue = Math.min(...values, ndvi.baseline);
+  const maxValue = Math.max(...values, ndvi.baseline);
+
+  const yMin = Math.max(0, Math.floor((minValue - 0.05) * 10) / 10);
+  const yMax = Math.min(1, Math.ceil((maxValue + 0.05) * 10) / 10);
+
   return (
     <section className="chart-card">
       <div className="chart-header">
         <div>
           <p className="eyebrow">EVIDENCE · VEGETATION</p>
-          <h2>Vegetation Health Trend (NDVI)</h2>
-          <p className="chart-description">
-            Mean vegetation vigor fell from 0.60 baseline to 0.53 during the
-            selected six-month comparison period.
-          </p>
+          <h2>{ndvi.title}</h2>
+          <p className="chart-description">{ndvi.description}</p>
         </div>
 
         <div className="confidence-label">
           <span className="confidence-dot" />
-          Moderate confidence
+          {ndvi.confidence}
         </div>
       </div>
 
       <div className="chart-wrap">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={ndviData}
+            data={ndvi.data}
             margin={{ top: 18, right: 20, left: -12, bottom: 2 }}
           >
             <CartesianGrid
@@ -73,16 +67,19 @@ function NDVIChart() {
               tick={{ fill: "#9ca3af", fontSize: 12 }}
             />
             <YAxis
-              domain={[0.35, 0.75]}
-              ticks={[0.4, 0.5, 0.6, 0.7]}
+              domain={[yMin, yMax]}
+              tickCount={5}
               axisLine={false}
               tickLine={false}
               tick={{ fill: "#9ca3af", fontSize: 12 }}
               tickFormatter={(value) => value.toFixed(2)}
             />
-            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Tooltip
+              content={<CustomTooltip baseline={ndvi.baseline} />}
+              cursor={false}
+            />
             <ReferenceLine
-              y={0.6}
+              y={ndvi.baseline}
               stroke="#cbd5e1"
               strokeDasharray="4 5"
               label={{
@@ -95,6 +92,7 @@ function NDVIChart() {
             <Line
               type="monotone"
               dataKey="ndvi"
+              name="NDVI"
               stroke="#f59e0b"
               strokeWidth={3}
               dot={false}
@@ -121,15 +119,15 @@ function NDVIChart() {
       <div className="evidence-meta">
         <div>
           <span>Source</span>
-          <strong>Sentinel-2 / Copernicus</strong>
+          <strong>{ndvi.source}</strong>
         </div>
         <div>
           <span>Method</span>
-          <strong>Mean NDVI comparison</strong>
+          <strong>{ndvi.method}</strong>
         </div>
         <div>
           <span>Limitation</span>
-          <strong>NDVI is a vegetation-vigor proxy.</strong>
+          <strong>{ndvi.limitation}</strong>
         </div>
       </div>
     </section>

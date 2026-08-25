@@ -1,45 +1,22 @@
-import { Activity, Flame, Leaf, PawPrint, Thermometer } from "lucide-react";
+import { Activity, Flame, Leaf, MapPin, PawPrint, Thermometer } from "lucide-react";
 import { useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
+import { reserves } from "./data/reserves";
 import "./App.css";
 
-const vitalSigns = [
-  {
-    icon: Leaf,
-    value: "-12%",
-    direction: "↓",
-    label: "Vegetation Health",
-    caption: "vs. 6-month baseline",
-    status: "warning",
-  },
-  {
-    icon: Thermometer,
-    value: "Elevated",
-    direction: "↑",
-    label: "Climate Stress",
-    caption: "Current status",
-    status: "critical",
-  },
-  {
-    icon: PawPrint,
-    value: "Stable",
-    direction: "→",
-    label: "Wildlife Activity",
-    caption: "Observation activity proxy",
-    status: "healthy",
-  },
-  {
-    icon: Flame,
-    value: "Low",
-    direction: "↓",
-    label: "Disturbance Risk",
-    caption: "Recent thermal alerts",
-    status: "healthy",
-  },
-];
+const iconMap = {
+  leaf: Leaf,
+  thermometer: Thermometer,
+  paw: PawPrint,
+  flame: Flame,
+};
+
 function App() {
+  const [selectedReserveId, setSelectedReserveId] = useState("amboseli");
   const [activeEvidence, setActiveEvidence] = useState(false);
   const evidenceRef = useRef(null);
+
+  const reserve = reserves[selectedReserveId];
 
   function showVegetationEvidence() {
     setActiveEvidence(true);
@@ -53,63 +30,82 @@ function App() {
       setActiveEvidence(false);
     }, 2200);
   }
+
+  function handleReserveChange(event) {
+    setSelectedReserveId(event.target.value);
+    setActiveEvidence(false);
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark">⌁</div>
+          <div className="brand-mark">
+            <Activity size={22} strokeWidth={2} />
+          </div>
           <span>BioSentinel</span>
         </div>
 
-        <button className="reserve-selector" type="button">
-          <span className="location-dot">⌖</span>
-          Amboseli National Reserve
-          <span className="chevron">⌄</span>
-        </button>
+        <label className="reserve-selector">
+          <MapPin size={17} strokeWidth={2} />
+          <select
+            value={selectedReserveId}
+            onChange={handleReserveChange}
+            aria-label="Select protected area"
+          >
+            {Object.values(reserves).map((reserveOption) => (
+              <option key={reserveOption.id} value={reserveOption.id}>
+                {reserveOption.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </header>
 
       <section className="hero">
         <div>
           <p className="eyebrow">ECOSYSTEM VITAL SIGNS</p>
-          <h1>Amboseli National Reserve</h1>
-          <p className="subtitle">
-            An evidence-linked ecosystem check-up using the latest available
-            environmental signals.
-          </p>
+          <h1>{reserve.name}</h1>
+          <p className="subtitle">{reserve.description}</p>
         </div>
 
         <div className="data-status">
           <span className="live-dot" />
-          Data snapshot: 20 Aug 2026
+          Data snapshot: {reserve.snapshotDate}
         </div>
       </section>
 
       <section className="vital-grid" aria-label="Ecosystem vital signs">
-        {vitalSigns.map((sign) => (
-          <article className={`vital-card ${sign.status}`} key={sign.label}>
-            <div className="signal-line" />
-            <div className="card-top">
-              <span className="signal-icon">
-                <sign.icon size={23} strokeWidth={1.9} />
-              </span>
-              <span className="signal-state">{sign.status}</span>
-            </div>
+        {reserve.signals.map((sign) => {
+          const SignalIcon = iconMap[sign.icon];
 
-            <div className="reading-row">
-              <span
-                className={`reading ${
-                  sign.value.length > 7 ? "reading-long" : ""
-                }`}
-              >
-                {sign.value}
-              </span>
-              <span className="trend-arrow">{sign.direction}</span>
-            </div>
+          return (
+            <article className={`vital-card ${sign.status}`} key={sign.id}>
+              <div className="signal-line" />
 
-            <h2>{sign.label}</h2>
-            <p>{sign.caption}</p>
-          </article>
-        ))}
+              <div className="card-top">
+                <span className="signal-icon">
+                  <SignalIcon size={23} strokeWidth={1.9} />
+                </span>
+                <span className="signal-state">{sign.status}</span>
+              </div>
+
+              <div className="reading-row">
+                <span
+                  className={`reading ${
+                    sign.value.length > 7 ? "reading-long" : ""
+                  }`}
+                >
+                  {sign.value}
+                </span>
+                <span className="trend-arrow">{sign.direction}</span>
+              </div>
+
+              <h2>{sign.label}</h2>
+              <p>{sign.caption}</p>
+            </article>
+          );
+        })}
       </section>
 
       <section className="summary-panel">
@@ -119,24 +115,23 @@ function App() {
         </div>
 
         <p>
-          Vegetation vigor has{" "}
+          {reserve.summary.vegetationPrefix}{" "}
           <button
             className="evidence-link"
             type="button"
             onClick={showVegetationEvidence}
           >
-            declined by 12%
+            {reserve.summary.vegetationClaim}
           </button>{" "}
-          compared with the six-month baseline, alongside{" "}
+          {reserve.summary.vegetationSuffix}{" "}
           <button className="evidence-link" type="button">
-            below-average rainfall
+            {reserve.summary.rainfallClaim}
           </button>{" "}
-          and prolonged dry conditions. Climate stress remains{" "}
+          {reserve.summary.climatePrefix}{" "}
           <button className="evidence-link" type="button">
-            elevated
+            {reserve.summary.climateClaim}
           </button>
-          . Wildlife observation activity is stable, while disturbance risk is
-          low.
+          {reserve.summary.ending}
         </p>
 
         <div className="summary-footer">
@@ -155,9 +150,11 @@ function App() {
 
       <section
         ref={evidenceRef}
-        className={`evidence-section ${activeEvidence ? "evidence-active" : ""}`}
+        className={`evidence-section ${
+          activeEvidence ? "evidence-active" : ""
+        }`}
       >
-        <NDVIChart />
+        <NDVIChart ndvi={reserve.ndvi} />
       </section>
     </main>
   );
