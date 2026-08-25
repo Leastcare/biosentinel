@@ -94,7 +94,13 @@ function App() {
             </div>
 
             <div className="reading-row">
-              <span className="reading">{sign.value}</span>
+              <span
+                className={`reading ${
+                  sign.value.length > 7 ? "reading-long" : ""
+                }`}
+              >
+                {sign.value}
+              </span>
               <span className="trend-arrow">{sign.direction}</span>
             </div>
 
@@ -135,7 +141,11 @@ function App() {
           <span>
             Every highlighted claim can be verified against its source data.
           </span>
-          <button className="evidence-button" type="button">
+          <button
+            className="evidence-button"
+            type="button"
+            onClick={showVegetationEvidence}
+          >
             View evidence <span>→</span>
           </button>
         </div>
