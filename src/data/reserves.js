@@ -73,6 +73,29 @@ export const reserves = {
         { month: "Apr '26", ndvi: 0.51, baseline: 0.6 },
         { month: "May '26", ndvi: 0.45, baseline: 0.6 },
       ],
+        },
+
+    climate: {
+      title: "Rainfall Trend",
+      description:
+        "Cumulative monthly rainfall was below the six-month historical baseline, contributing to elevated climate stress.",
+      baselineLabel: "Historical monthly baseline",
+      baseline: 62,
+      confidence: "High confidence",
+      source: "Open-Meteo historical weather",
+      method: "Monthly precipitation comparison",
+      limitation:
+        "Weather values are gridded estimates and may differ from on-site rain-gauge measurements.",
+      unit: "mm",
+      data: [
+        { month: "Nov '25", rainfall: 48, baseline: 62 },
+        { month: "Dec '25", rainfall: 52, baseline: 62 },
+        { month: "Jan '26", rainfall: 41, baseline: 62 },
+        { month: "Feb '26", rainfall: 36, baseline: 62 },
+        { month: "Mar '26", rainfall: 44, baseline: 62 },
+        { month: "Apr '26", rainfall: 39, baseline: 62 },
+        { month: "May '26", rainfall: 31, baseline: 62 },
+      ],
     },
   },
 
@@ -150,6 +173,29 @@ export const reserves = {
         { month: "Mar '26", ndvi: 0.5, baseline: 0.49 },
         { month: "Apr '26", ndvi: 0.52, baseline: 0.49 },
         { month: "May '26", ndvi: 0.53, baseline: 0.49 },
+      ],
+        },
+
+    climate: {
+      title: "Rainfall Recovery Trend",
+      description:
+        "Monthly rainfall is improving but remains below the historical baseline, so climate stress remains on watch.",
+      baselineLabel: "Historical monthly baseline",
+      baseline: 48,
+      confidence: "High confidence",
+      source: "Open-Meteo historical weather",
+      method: "Monthly precipitation comparison",
+      limitation:
+        "Weather values are gridded estimates and may differ from on-site rain-gauge measurements.",
+      unit: "mm",
+      data: [
+        { month: "Nov '25", rainfall: 29, baseline: 48 },
+        { month: "Dec '25", rainfall: 32, baseline: 48 },
+        { month: "Jan '26", rainfall: 35, baseline: 48 },
+        { month: "Feb '26", rainfall: 39, baseline: 48 },
+        { month: "Mar '26", rainfall: 41, baseline: 48 },
+        { month: "Apr '26", rainfall: 44, baseline: 48 },
+        { month: "May '26", rainfall: 45, baseline: 48 },
       ],
     },
   },

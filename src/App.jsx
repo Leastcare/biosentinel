@@ -1,6 +1,14 @@
-import { Activity, Flame, Leaf, MapPin, PawPrint, Thermometer } from "lucide-react";
+import {
+  Activity,
+  Flame,
+  Leaf,
+  MapPin,
+  PawPrint,
+  Thermometer,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
+import ClimateChart from "./components/ClimateChart";
 import { reserves } from "./data/reserves";
 import "./App.css";
 
@@ -13,22 +21,31 @@ const iconMap = {
 
 function App() {
   const [selectedReserveId, setSelectedReserveId] = useState("amboseli");
-  const [activeEvidence, setActiveEvidence] = useState(false);
+  const [activeEvidence, setActiveEvidence] = useState("");
   const evidenceRef = useRef(null);
+  const climateEvidenceRef = useRef(null);
 
   const reserve = reserves[selectedReserveId];
 
-  function showVegetationEvidence() {
-    setActiveEvidence(true);
+  function showEvidence(type, ref) {
+    setActiveEvidence(type);
 
-    evidenceRef.current?.scrollIntoView({
+    ref.current?.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
     window.setTimeout(() => {
-      setActiveEvidence(false);
+      setActiveEvidence("");
     }, 2200);
+  }
+
+  function showVegetationEvidence() {
+    showEvidence("vegetation", evidenceRef);
+  }
+
+  function showClimateEvidence() {
+    showEvidence("climate", climateEvidenceRef);
   }
 
   function handleReserveChange(event) {
@@ -80,7 +97,23 @@ function App() {
           const SignalIcon = iconMap[sign.icon];
 
           return (
-            <article className={`vital-card ${sign.status}`} key={sign.id}>
+            <article
+              className={`vital-card ${sign.status} ${
+                sign.id === "climate" ? "clickable-card" : ""
+              }`}
+              key={sign.id}
+              onClick={sign.id === "climate" ? showClimateEvidence : undefined}
+              role={sign.id === "climate" ? "button" : undefined}
+              tabIndex={sign.id === "climate" ? 0 : undefined}
+              onKeyDown={(event) => {
+                if (
+                  sign.id === "climate" &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  showClimateEvidence();
+                }
+              }}
+            >
               <div className="signal-line" />
 
               <div className="card-top">
@@ -124,7 +157,11 @@ function App() {
             {reserve.summary.vegetationClaim}
           </button>{" "}
           {reserve.summary.vegetationSuffix}{" "}
-          <button className="evidence-link" type="button">
+          <button
+            className="evidence-link"
+            type="button"
+            onClick={showClimateEvidence}
+          >
             {reserve.summary.rainfallClaim}
           </button>{" "}
           {reserve.summary.climatePrefix}{" "}
@@ -151,10 +188,19 @@ function App() {
       <section
         ref={evidenceRef}
         className={`evidence-section ${
-          activeEvidence ? "evidence-active" : ""
+          activeEvidence === "vegetation" ? "evidence-active" : ""
         }`}
       >
         <NDVIChart ndvi={reserve.ndvi} />
+      </section>
+
+      <section
+        ref={climateEvidenceRef}
+        className={`evidence-section ${
+          activeEvidence === "climate" ? "evidence-active" : ""
+        }`}
+      >
+        <ClimateChart climate={reserve.climate} />
       </section>
     </main>
   );

@@ -669,3 +669,39 @@ button {
   content: "⌄";
   pointer-events: none;
 }
+
+.climate-chart-card {
+  border-color: rgba(56, 189, 248, 0.22);
+}
+
+.climate-confidence {
+  border-color: rgba(56, 189, 248, 0.28);
+  background: rgba(14, 116, 144, 0.12);
+  color: #bae6fd;
+}
+
+.climate-confidence .confidence-dot {
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+}
+
+.clickable-card {
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.clickable-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(56, 189, 248, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.24),
+    0 18px 38px rgba(0, 0, 0, 0.28);
+}
+
+.clickable-card:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 4px;
+}
