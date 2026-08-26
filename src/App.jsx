@@ -6,7 +6,7 @@ import {
   PawPrint,
   Thermometer,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
 import ClimateChart from "./components/ClimateChart";
 import WildlifeChart from "./components/WildlifeChart";
@@ -15,6 +15,7 @@ import ReserveMap from "./components/ReserveMap";
 import { reserves } from "./data/reserves";
 import "./App.css";
 import SourcePanel from "./components/SourcePanel";
+import { fetchFirmsAlerts, getCachedFirmsAlerts } from "./services/firms";
 
 const iconMap = {
   leaf: Leaf,
@@ -26,12 +27,44 @@ const iconMap = {
 function App() {
   const [selectedReserveId, setSelectedReserveId] = useState("amboseli");
   const [activeEvidence, setActiveEvidence] = useState("");
+  const [firmsData, setFirmsData] = useState(null);
+  const [firmsMode, setFirmsMode] = useState("preset");
   const evidenceRef = useRef(null);
   const climateEvidenceRef = useRef(null);
   const wildlifeEvidenceRef = useRef(null);
   const disturbanceEvidenceRef = useRef(null);
 
   const reserve = reserves[selectedReserveId];
+  useEffect(() => {
+    let cancelled = false;
+
+    setFirmsData(null);
+    setFirmsMode("loading");
+
+    fetchFirmsAlerts(selectedReserveId)
+      .then((result) => {
+        if (!cancelled) {
+          setFirmsData(result);
+          setFirmsMode("live");
+        }
+      })
+      .catch((error) => {
+        console.error("FIRMS request failed:", error);
+
+        const cached = getCachedFirmsAlerts(selectedReserveId);
+
+        if (!cancelled && cached) {
+          setFirmsData(cached);
+          setFirmsMode("cached");
+        } else if (!cancelled) {
+          setFirmsMode("preset");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedReserveId]);
 
   function showEvidence(type, ref) {
     setActiveEvidence(type);
@@ -102,7 +135,13 @@ function App() {
 
         <div className="data-status">
           <span className="live-dot" />
-          Data snapshot: {reserve.snapshotDate}
+          {firmsMode === "live"
+            ? "Live · NASA FIRMS"
+            : firmsMode === "cached"
+              ? "Cached · NASA FIRMS"
+              : firmsMode === "loading"
+                ? "Checking · NASA FIRMS"
+                : "Demo data · offline fallback"}
         </div>
       </section>
 
@@ -338,7 +377,21 @@ function App() {
           activeEvidence === "disturbance" ? "evidence-active" : ""
         }`}
       >
-        <DisturbanceChart disturbance={reserve.disturbance} />
+        <DisturbanceChart
+          disturbance={
+            firmsData?.chartData?.length
+              ? {
+                  ...reserve.disturbance,
+                  data: firmsData.chartData,
+                  description:
+                    "Recent NASA FIRMS thermal-anomaly detections for the selected reserve area.",
+                  confidence: "Live satellite detection",
+                  source: "NASA FIRMS",
+                  method: "Recent area-based thermal-alert count",
+                }
+              : reserve.disturbance
+          }
+        />
       </section>
 
       <ReserveMap reserveId={reserve.id} reserveName={reserve.name} />
