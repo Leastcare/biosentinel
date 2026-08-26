@@ -11,6 +11,7 @@ import NDVIChart from "./components/NDVIChart";
 import ClimateChart from "./components/ClimateChart";
 import WildlifeChart from "./components/WildlifeChart";
 import DisturbanceChart from "./components/DisturbanceChart";
+import ReserveMap from "./components/ReserveMap";
 import { reserves } from "./data/reserves";
 import "./App.css";
 
@@ -312,6 +313,8 @@ function App() {
       >
         <DisturbanceChart disturbance={reserve.disturbance} />
       </section>
+
+      <ReserveMap reserveId={reserve.id} reserveName={reserve.name} />
     </main>
   );
 }
