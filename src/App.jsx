@@ -14,6 +14,7 @@ import DisturbanceChart from "./components/DisturbanceChart";
 import ReserveMap from "./components/ReserveMap";
 import { reserves } from "./data/reserves";
 import "./App.css";
+import SourcePanel from "./components/SourcePanel";
 
 const iconMap = {
   leaf: Leaf,
@@ -315,6 +316,7 @@ function App() {
       </section>
 
       <ReserveMap reserveId={reserve.id} reserveName={reserve.name} />
+      <SourcePanel />
     </main>
   );
 }
