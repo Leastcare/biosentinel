@@ -111,34 +111,43 @@ function App() {
           const SignalIcon = iconMap[sign.icon];
 
           return (
-            <article
+            <button
               className={`vital-card ${sign.status} ${
-                ["climate", "wildlife", "disturbance"].includes(sign.id)
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(
+                  sign.id,
+                )
                   ? "clickable-card"
                   : ""
               }`}
               key={sign.id}
               onClick={
-                sign.id === "climate"
-                  ? showClimateEvidence
-                  : sign.id === "wildlife"
-                    ? showWildlifeEvidence
-                    : sign.id === "disturbance"
-                      ? showDisturbanceEvidence
-                      : undefined
+                sign.id === "vegetation"
+                  ? showVegetationEvidence
+                  : sign.id === "climate"
+                    ? showClimateEvidence
+                    : sign.id === "wildlife"
+                      ? showWildlifeEvidence
+                      : sign.id === "disturbance"
+                        ? showDisturbanceEvidence
+                        : undefined
               }
               role={
-                ["climate", "wildlife", "disturbance"].includes(sign.id)
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(
+                  sign.id,
+                )
                   ? "button"
                   : undefined
               }
               tabIndex={
-                ["climate", "wildlife", "disturbance"].includes(sign.id)
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(
+                  sign.id,
+                )
                   ? 0
                   : undefined
               }
               onKeyDown={(event) => {
                 const canOpenEvidence = [
+                  "vegetation",
                   "climate",
                   "wildlife",
                   "disturbance",
@@ -148,6 +157,10 @@ function App() {
                   canOpenEvidence &&
                   (event.key === "Enter" || event.key === " ")
                 ) {
+                  if (sign.id === "vegetation") {
+                    showVegetationEvidence();
+                  }
+
                   if (sign.id === "climate") {
                     showClimateEvidence();
                   }
@@ -171,7 +184,20 @@ function App() {
                 <span className="signal-state">{sign.status}</span>
               </div>
 
-              <div className="reading-row">
+              <div
+                className="reading-row"
+                onClick={
+                  sign.id === "vegetation"
+                    ? showVegetationEvidence
+                    : sign.id === "climate"
+                      ? showClimateEvidence
+                      : sign.id === "wildlife"
+                        ? showWildlifeEvidence
+                        : sign.id === "disturbance"
+                          ? showDisturbanceEvidence
+                          : undefined
+                }
+              >
                 <span
                   className={`reading ${
                     sign.value.length > 7 ? "reading-long" : ""
@@ -184,7 +210,7 @@ function App() {
 
               <h2>{sign.label}</h2>
               <p>{sign.caption}</p>
-            </article>
+            </button>
           );
         })}
       </section>

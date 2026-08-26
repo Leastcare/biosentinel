@@ -163,6 +163,7 @@ button {
 .vital-card {
   position: relative;
   overflow: hidden;
+  width: 100%;
   min-height: 330px;
   padding: 24px;
   display: flex;
@@ -175,6 +176,8 @@ button {
     linear-gradient(145deg, rgba(30, 41, 59, 0.62), rgba(15, 23, 42, 0.9)),
     #111827;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+  color: inherit;
+  font: inherit;
 }
 
 .vital-card::after {
@@ -598,7 +601,10 @@ button {
 }
 
 .reading-row {
-  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  z-index: 5;
+  overflow: visible;
 }
 
 @media (max-width: 1120px) {
@@ -988,4 +994,31 @@ button {
   .source-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.vital-card.clickable-card {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.reading-row {
+  cursor: pointer;
+  position: relative;
+  z-index: 5;
+}
+
+.vital-card,
+.vital-card:hover,
+.vital-card:active {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.vital-card.clickable-card {
+  cursor: pointer;
+}
+
+.vital-card.clickable-card > * {
+  pointer-events: none;
 }
