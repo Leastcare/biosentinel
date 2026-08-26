@@ -1022,3 +1022,42 @@ button {
 .vital-card.clickable-card > * {
   pointer-events: none;
 }
+
+.firms-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border: 1px solid rgba(92, 174, 255, 0.35);
+  border-radius: 999px;
+  color: #9dd4ff;
+  background: rgba(40, 110, 180, 0.12);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.status-dot.live {
+  background: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.8);
+}
+
+.status-dot.cached {
+  background: #fbbf24;
+}
+
+.status-dot.loading {
+  background: #60a5fa;
+}
+
+.status-dot.preset {
+  background: #9ca3af;
+}

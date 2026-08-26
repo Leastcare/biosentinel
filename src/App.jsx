@@ -135,13 +135,7 @@ function App() {
 
         <div className="data-status">
           <span className="live-dot" />
-          {firmsMode === "live"
-            ? "Live · NASA FIRMS"
-            : firmsMode === "cached"
-              ? "Cached · NASA FIRMS"
-              : firmsMode === "loading"
-                ? "Checking · NASA FIRMS"
-                : "Demo data · offline fallback"}
+          <span>Overall snapshot: {reserve.snapshotDate}</span>
         </div>
       </section>
 
@@ -377,6 +371,16 @@ function App() {
           activeEvidence === "disturbance" ? "evidence-active" : ""
         }`}
       >
+        <div className="firms-status">
+          <span className={`status-dot ${firmsMode}`} />
+          {firmsMode === "live"
+            ? "Live · NASA FIRMS"
+            : firmsMode === "cached"
+              ? "Cached · NASA FIRMS"
+              : firmsMode === "loading"
+                ? "Checking · NASA FIRMS"
+                : "Demo data · offline fallback"}
+        </div>
         <DisturbanceChart
           disturbance={
             firmsData?.chartData?.length
