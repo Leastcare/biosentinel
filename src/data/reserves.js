@@ -119,6 +119,29 @@ export const reserves = {
         { month: "Apr '26", records: 35, baseline: 34 },
         { month: "May '26", records: 33, baseline: 34 },
       ],
+        },
+
+    disturbance: {
+      title: "Thermal Anomaly Activity",
+      description:
+        "No recent FIRMS thermal alerts were recorded inside the selected reserve boundary during the monitoring period.",
+      baselineLabel: "Alert reference level",
+      baseline: 2,
+      confidence: "High confidence",
+      source: "NASA FIRMS",
+      method: "Monthly thermal-alert count",
+      limitation:
+        "Thermal alerts are detection signals and do not independently confirm fire damage.",
+      unit: "alerts",
+      data: [
+        { month: "Nov '25", alerts: 1, baseline: 2 },
+        { month: "Dec '25", alerts: 0, baseline: 2 },
+        { month: "Jan '26", alerts: 0, baseline: 2 },
+        { month: "Feb '26", alerts: 0, baseline: 2 },
+        { month: "Mar '26", alerts: 0, baseline: 2 },
+        { month: "Apr '26", alerts: 0, baseline: 2 },
+        { month: "May '26", alerts: 0, baseline: 2 },
+      ],
     },
   },
 
@@ -242,6 +265,29 @@ export const reserves = {
         { month: "Mar '26", records: 19, baseline: 18 },
         { month: "Apr '26", records: 22, baseline: 18 },
         { month: "May '26", records: 25, baseline: 18 },
+      ],
+        },
+
+    disturbance: {
+      title: "Thermal Anomaly Activity",
+      description:
+        "One FIRMS thermal alert was recorded during the monitoring period and remains flagged for review.",
+      baselineLabel: "Alert reference level",
+      baseline: 1,
+      confidence: "Moderate confidence",
+      source: "NASA FIRMS",
+      method: "Monthly thermal-alert count",
+      limitation:
+        "Thermal alerts are detection signals and do not independently confirm fire damage.",
+      unit: "alerts",
+      data: [
+        { month: "Nov '25", alerts: 0, baseline: 1 },
+        { month: "Dec '25", alerts: 0, baseline: 1 },
+        { month: "Jan '26", alerts: 0, baseline: 1 },
+        { month: "Feb '26", alerts: 0, baseline: 1 },
+        { month: "Mar '26", alerts: 1, baseline: 1 },
+        { month: "Apr '26", alerts: 0, baseline: 1 },
+        { month: "May '26", alerts: 0, baseline: 1 },
       ],
     },
   },

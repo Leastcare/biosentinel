@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
 import ClimateChart from "./components/ClimateChart";
 import WildlifeChart from "./components/WildlifeChart";
+import DisturbanceChart from "./components/DisturbanceChart";
 import { reserves } from "./data/reserves";
 import "./App.css";
 
@@ -26,6 +27,7 @@ function App() {
   const evidenceRef = useRef(null);
   const climateEvidenceRef = useRef(null);
   const wildlifeEvidenceRef = useRef(null);
+  const disturbanceEvidenceRef = useRef(null);
 
   const reserve = reserves[selectedReserveId];
 
@@ -54,9 +56,13 @@ function App() {
     showEvidence("wildlife", wildlifeEvidenceRef);
   }
 
+  function showDisturbanceEvidence() {
+    showEvidence("disturbance", disturbanceEvidenceRef);
+  }
+
   function handleReserveChange(event) {
     setSelectedReserveId(event.target.value);
-    setActiveEvidence(false);
+    setActiveEvidence("");
   }
 
   return (
@@ -105,7 +111,7 @@ function App() {
           return (
             <article
               className={`vital-card ${sign.status} ${
-                sign.id === "climate" || sign.id === "wildlife"
+                ["climate", "wildlife", "disturbance"].includes(sign.id)
                   ? "clickable-card"
                   : ""
               }`}
@@ -115,19 +121,26 @@ function App() {
                   ? showClimateEvidence
                   : sign.id === "wildlife"
                     ? showWildlifeEvidence
-                    : undefined
+                    : sign.id === "disturbance"
+                      ? showDisturbanceEvidence
+                      : undefined
               }
               role={
-                sign.id === "climate" || sign.id === "wildlife"
+                ["climate", "wildlife", "disturbance"].includes(sign.id)
                   ? "button"
                   : undefined
               }
               tabIndex={
-                sign.id === "climate" || sign.id === "wildlife" ? 0 : undefined
+                ["climate", "wildlife", "disturbance"].includes(sign.id)
+                  ? 0
+                  : undefined
               }
               onKeyDown={(event) => {
-                const canOpenEvidence =
-                  sign.id === "climate" || sign.id === "wildlife";
+                const canOpenEvidence = [
+                  "climate",
+                  "wildlife",
+                  "disturbance",
+                ].includes(sign.id);
 
                 if (
                   canOpenEvidence &&
@@ -139,6 +152,10 @@ function App() {
 
                   if (sign.id === "wildlife") {
                     showWildlifeEvidence();
+                  }
+
+                  if (sign.id === "disturbance") {
+                    showDisturbanceEvidence();
                   }
                 }
               }}
@@ -194,23 +211,55 @@ function App() {
             {reserve.summary.rainfallClaim}
           </button>{" "}
           {reserve.summary.climatePrefix}{" "}
-          <button className="evidence-link" type="button">
+          <button
+            className="evidence-link"
+            type="button"
+            onClick={showClimateEvidence}
+          >
             {reserve.summary.climateClaim}
           </button>
-          {reserve.summary.ending.includes("Wildlife observation activity") ? (
+          {reserve.id === "amboseli" ? (
             <>
-              {reserve.summary.ending.split("Wildlife observation activity")[0]}
+              {" "}
+              Wildlife{" "}
               <button
                 className="evidence-link"
                 type="button"
                 onClick={showWildlifeEvidence}
               >
-                Wildlife observation activity
-              </button>
-              {reserve.summary.ending.split("Wildlife observation activity")[1]}
+                observation activity
+              </button>{" "}
+              is stable, while{" "}
+              <button
+                className="evidence-link"
+                type="button"
+                onClick={showDisturbanceEvidence}
+              >
+                disturbance risk
+              </button>{" "}
+              is low.
             </>
           ) : (
-            reserve.summary.ending
+            <>
+              {" "}
+              Wildlife{" "}
+              <button
+                className="evidence-link"
+                type="button"
+                onClick={showWildlifeEvidence}
+              >
+                observation activity
+              </button>{" "}
+              is rising, and one recent{" "}
+              <button
+                className="evidence-link"
+                type="button"
+                onClick={showDisturbanceEvidence}
+              >
+                thermal alert
+              </button>{" "}
+              warrants continued monitoring.
+            </>
           )}
         </p>
 
@@ -253,6 +302,15 @@ function App() {
         }`}
       >
         <WildlifeChart wildlife={reserve.wildlife} />
+      </section>
+
+      <section
+        ref={disturbanceEvidenceRef}
+        className={`evidence-section ${
+          activeEvidence === "disturbance" ? "evidence-active" : ""
+        }`}
+      >
+        <DisturbanceChart disturbance={reserve.disturbance} />
       </section>
     </main>
   );

@@ -732,3 +732,30 @@ button {
   font-size: 0.76rem;
   line-height: 1.45;
 }
+
+.disturbance-chart-card {
+  border-color: rgba(248, 113, 113, 0.24);
+}
+
+.disturbance-confidence {
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(127, 29, 29, 0.14);
+  color: #fecaca;
+}
+
+.disturbance-confidence .confidence-dot {
+  background: #f87171;
+  box-shadow: 0 0 10px #f87171;
+}
+
+.alert-notice {
+  display: inline-flex;
+  margin-top: 14px;
+  padding: 8px 10px;
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: 8px;
+  background: rgba(127, 29, 29, 0.14);
+  color: #fecaca;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
