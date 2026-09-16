@@ -30,7 +30,7 @@ function CustomTooltip({ active, payload, label, baseline, unit }) {
   );
 }
 
-function ClimateChart({ climate }) {
+function ClimateChart({ climate, mode }) {
   const values = climate.data.map((point) => point.rainfall);
   const minValue = Math.min(...values, climate.baseline);
   const maxValue = Math.max(...values, climate.baseline);
@@ -49,7 +49,7 @@ function ClimateChart({ climate }) {
 
         <div className="confidence-label climate-confidence">
           <span className="confidence-dot" />
-          {climate.confidence}
+          {mode === "live" ? "Live · Open-Meteo" : climate.confidence}
         </div>
       </div>
 

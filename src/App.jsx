@@ -16,6 +16,8 @@ import { reserves } from "./data/reserves";
 import "./App.css";
 import SourcePanel from "./components/SourcePanel";
 import { fetchFirmsAlerts, getCachedFirmsAlerts } from "./services/firms";
+import { fetchRainfall } from "./services/openmeteo";
+import { fetchWildlifeOccurrences } from "./services/gbif";
 
 const iconMap = {
   leaf: Leaf,
@@ -27,14 +29,27 @@ const iconMap = {
 function App() {
   const [selectedReserveId, setSelectedReserveId] = useState("amboseli");
   const [activeEvidence, setActiveEvidence] = useState("");
+
+  // Disturbance (NASA FIRMS)
   const [firmsData, setFirmsData] = useState(null);
   const [firmsMode, setFirmsMode] = useState("preset");
+
+  // Rainfall (Open-Meteo)
+  const [rainfallData, setRainfallData] = useState(null);
+  const [rainfallMode, setRainfallMode] = useState("preset");
+
+  // Wildlife (GBIF)
+  const [wildlifeData, setWildlifeData] = useState(null);
+  const [wildlifeMode, setWildlifeMode] = useState("preset");
+
   const evidenceRef = useRef(null);
   const climateEvidenceRef = useRef(null);
   const wildlifeEvidenceRef = useRef(null);
   const disturbanceEvidenceRef = useRef(null);
 
   const reserve = reserves[selectedReserveId];
+
+  // ── NASA FIRMS (disturbance) ────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
 
@@ -50,9 +65,7 @@ function App() {
       })
       .catch((error) => {
         console.error("FIRMS request failed:", error);
-
         const cached = getCachedFirmsAlerts(selectedReserveId);
-
         if (!cancelled && cached) {
           setFirmsData(cached);
           setFirmsMode("cached");
@@ -66,17 +79,63 @@ function App() {
     };
   }, [selectedReserveId]);
 
+  // ── Open-Meteo (rainfall) ───────────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    setRainfallData(null);
+    setRainfallMode("loading");
+
+    fetchRainfall(reserve.lat, reserve.lon, reserve.climate.baseline)
+      .then((result) => {
+        if (!cancelled) {
+          setRainfallData(result);
+          setRainfallMode("live");
+        }
+      })
+      .catch((error) => {
+        console.error("Open-Meteo request failed:", error);
+        if (!cancelled) {
+          setRainfallMode("preset");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedReserveId]);
+
+  // ── GBIF (wildlife occurrences) ─────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    setWildlifeData(null);
+    setWildlifeMode("loading");
+
+    fetchWildlifeOccurrences(reserve.bbox, reserve.wildlife.baseline)
+      .then((result) => {
+        if (!cancelled) {
+          setWildlifeData(result);
+          setWildlifeMode("live");
+        }
+      })
+      .catch((error) => {
+        console.error("GBIF request failed:", error);
+        if (!cancelled) {
+          setWildlifeMode("preset");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedReserveId]);
+
+  // ── Evidence scroll helpers ─────────────────────────────────────────────────
   function showEvidence(type, ref) {
     setActiveEvidence(type);
-
-    ref.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    window.setTimeout(() => {
-      setActiveEvidence("");
-    }, 2200);
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => setActiveEvidence(""), 2200);
   }
 
   function showVegetationEvidence() {
@@ -99,6 +158,42 @@ function App() {
     setSelectedReserveId(event.target.value);
     setActiveEvidence("");
   }
+
+  // ── Derived props for charts ────────────────────────────────────────────────
+  const climateProps =
+    rainfallData?.chartData?.length
+      ? {
+          ...reserve.climate,
+          data: rainfallData.chartData,
+          description:
+            "Live monthly rainfall totals from Open-Meteo reanalysis data for the selected reserve area.",
+          confidence: "Live weather data",
+        }
+      : reserve.climate;
+
+  const wildlifeProps =
+    wildlifeData?.chartData?.length
+      ? {
+          ...reserve.wildlife,
+          data: wildlifeData.chartData,
+          description:
+            "Live monthly GBIF occurrence-record counts for the selected reserve bounding box.",
+          confidence: "Live GBIF data",
+        }
+      : reserve.wildlife;
+
+  const disturbanceProps =
+    firmsData?.chartData?.length
+      ? {
+          ...reserve.disturbance,
+          data: firmsData.chartData,
+          description:
+            "Recent NASA FIRMS thermal-anomaly detections for the selected reserve area.",
+          confidence: "Live satellite detection",
+          source: "NASA FIRMS",
+          method: "Recent area-based thermal-alert count",
+        }
+      : reserve.disturbance;
 
   return (
     <main className="app-shell">
@@ -146,9 +241,7 @@ function App() {
           return (
             <button
               className={`vital-card ${sign.status} ${
-                ["vegetation", "climate", "wildlife", "disturbance"].includes(
-                  sign.id,
-                )
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(sign.id)
                   ? "clickable-card"
                   : ""
               }`}
@@ -165,16 +258,12 @@ function App() {
                         : undefined
               }
               role={
-                ["vegetation", "climate", "wildlife", "disturbance"].includes(
-                  sign.id,
-                )
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(sign.id)
                   ? "button"
                   : undefined
               }
               tabIndex={
-                ["vegetation", "climate", "wildlife", "disturbance"].includes(
-                  sign.id,
-                )
+                ["vegetation", "climate", "wildlife", "disturbance"].includes(sign.id)
                   ? 0
                   : undefined
               }
@@ -186,25 +275,11 @@ function App() {
                   "disturbance",
                 ].includes(sign.id);
 
-                if (
-                  canOpenEvidence &&
-                  (event.key === "Enter" || event.key === " ")
-                ) {
-                  if (sign.id === "vegetation") {
-                    showVegetationEvidence();
-                  }
-
-                  if (sign.id === "climate") {
-                    showClimateEvidence();
-                  }
-
-                  if (sign.id === "wildlife") {
-                    showWildlifeEvidence();
-                  }
-
-                  if (sign.id === "disturbance") {
-                    showDisturbanceEvidence();
-                  }
+                if (canOpenEvidence && (event.key === "Enter" || event.key === " ")) {
+                  if (sign.id === "vegetation") showVegetationEvidence();
+                  if (sign.id === "climate") showClimateEvidence();
+                  if (sign.id === "wildlife") showWildlifeEvidence();
+                  if (sign.id === "disturbance") showDisturbanceEvidence();
                 }
               }}
             >
@@ -231,11 +306,7 @@ function App() {
                           : undefined
                 }
               >
-                <span
-                  className={`reading ${
-                    sign.value.length > 7 ? "reading-long" : ""
-                  }`}
-                >
+                <span className={`reading ${sign.value.length > 7 ? "reading-long" : ""}`}>
                   {sign.value}
                 </span>
                 <span className="trend-arrow">{sign.direction}</span>
@@ -256,67 +327,37 @@ function App() {
 
         <p>
           {reserve.summary.vegetationPrefix}{" "}
-          <button
-            className="evidence-link"
-            type="button"
-            onClick={showVegetationEvidence}
-          >
+          <button className="evidence-link" type="button" onClick={showVegetationEvidence}>
             {reserve.summary.vegetationClaim}
           </button>{" "}
           {reserve.summary.vegetationSuffix}{" "}
-          <button
-            className="evidence-link"
-            type="button"
-            onClick={showClimateEvidence}
-          >
+          <button className="evidence-link" type="button" onClick={showClimateEvidence}>
             {reserve.summary.rainfallClaim}
           </button>{" "}
           {reserve.summary.climatePrefix}{" "}
-          <button
-            className="evidence-link"
-            type="button"
-            onClick={showClimateEvidence}
-          >
+          <button className="evidence-link" type="button" onClick={showClimateEvidence}>
             {reserve.summary.climateClaim}
           </button>
           {reserve.id === "amboseli" ? (
             <>
-              {" "}
-              Wildlife{" "}
-              <button
-                className="evidence-link"
-                type="button"
-                onClick={showWildlifeEvidence}
-              >
+              {" "}Wildlife{" "}
+              <button className="evidence-link" type="button" onClick={showWildlifeEvidence}>
                 observation activity
               </button>{" "}
               is stable, while{" "}
-              <button
-                className="evidence-link"
-                type="button"
-                onClick={showDisturbanceEvidence}
-              >
+              <button className="evidence-link" type="button" onClick={showDisturbanceEvidence}>
                 disturbance risk
               </button>{" "}
               is low.
             </>
           ) : (
             <>
-              {" "}
-              Wildlife{" "}
-              <button
-                className="evidence-link"
-                type="button"
-                onClick={showWildlifeEvidence}
-              >
+              {" "}Wildlife{" "}
+              <button className="evidence-link" type="button" onClick={showWildlifeEvidence}>
                 observation activity
               </button>{" "}
               is rising, and one recent{" "}
-              <button
-                className="evidence-link"
-                type="button"
-                onClick={showDisturbanceEvidence}
-              >
+              <button className="evidence-link" type="button" onClick={showDisturbanceEvidence}>
                 thermal alert
               </button>{" "}
               warrants continued monitoring.
@@ -325,51 +366,57 @@ function App() {
         </p>
 
         <div className="summary-footer">
-          <span>
-            Every highlighted claim can be verified against its source data.
-          </span>
-          <button
-            className="evidence-button"
-            type="button"
-            onClick={showVegetationEvidence}
-          >
+          <span>Every highlighted claim can be verified against its source data.</span>
+          <button className="evidence-button" type="button" onClick={showVegetationEvidence}>
             View evidence <span>→</span>
           </button>
         </div>
       </section>
 
+      {/* Vegetation — still static (no free NDVI API) */}
       <section
         ref={evidenceRef}
-        className={`evidence-section ${
-          activeEvidence === "vegetation" ? "evidence-active" : ""
-        }`}
+        className={`evidence-section ${activeEvidence === "vegetation" ? "evidence-active" : ""}`}
       >
         <NDVIChart ndvi={reserve.ndvi} />
       </section>
 
+      {/* Rainfall — live Open-Meteo */}
       <section
         ref={climateEvidenceRef}
-        className={`evidence-section ${
-          activeEvidence === "climate" ? "evidence-active" : ""
-        }`}
+        className={`evidence-section ${activeEvidence === "climate" ? "evidence-active" : ""}`}
       >
-        <ClimateChart climate={reserve.climate} />
+        <div className="firms-status">
+          <span className={`status-dot ${rainfallMode}`} />
+          {rainfallMode === "live"
+            ? "Live · Open-Meteo"
+            : rainfallMode === "loading"
+              ? "Fetching · Open-Meteo"
+              : "Demo data · offline fallback"}
+        </div>
+        <ClimateChart climate={climateProps} mode={rainfallMode} />
       </section>
 
+      {/* Wildlife — live GBIF */}
       <section
         ref={wildlifeEvidenceRef}
-        className={`evidence-section ${
-          activeEvidence === "wildlife" ? "evidence-active" : ""
-        }`}
+        className={`evidence-section ${activeEvidence === "wildlife" ? "evidence-active" : ""}`}
       >
-        <WildlifeChart wildlife={reserve.wildlife} />
+        <div className="firms-status">
+          <span className={`status-dot ${wildlifeMode}`} />
+          {wildlifeMode === "live"
+            ? "Live · GBIF"
+            : wildlifeMode === "loading"
+              ? "Fetching · GBIF (this may take a few seconds)"
+              : "Demo data · offline fallback"}
+        </div>
+        <WildlifeChart wildlife={wildlifeProps} mode={wildlifeMode} />
       </section>
 
+      {/* Disturbance — live NASA FIRMS */}
       <section
         ref={disturbanceEvidenceRef}
-        className={`evidence-section ${
-          activeEvidence === "disturbance" ? "evidence-active" : ""
-        }`}
+        className={`evidence-section ${activeEvidence === "disturbance" ? "evidence-active" : ""}`}
       >
         <div className="firms-status">
           <span className={`status-dot ${firmsMode}`} />
@@ -381,21 +428,7 @@ function App() {
                 ? "Checking · NASA FIRMS"
                 : "Demo data · offline fallback"}
         </div>
-        <DisturbanceChart
-          disturbance={
-            firmsData?.chartData?.length
-              ? {
-                  ...reserve.disturbance,
-                  data: firmsData.chartData,
-                  description:
-                    "Recent NASA FIRMS thermal-anomaly detections for the selected reserve area.",
-                  confidence: "Live satellite detection",
-                  source: "NASA FIRMS",
-                  method: "Recent area-based thermal-alert count",
-                }
-              : reserve.disturbance
-          }
-        />
+        <DisturbanceChart disturbance={disturbanceProps} />
       </section>
 
       <ReserveMap reserveId={reserve.id} reserveName={reserve.name} />

@@ -4,6 +4,11 @@ export const reserves = {
     name: "Amboseli National Reserve",
     country: "Kenya",
     snapshotDate: "20 Aug 2026",
+    // Open-Meteo: centre point for rainfall fetch
+    lat: -2.6527,
+    lon: 37.2606,
+    // GBIF bounding box for wildlife occurrence count
+    bbox: { latMin: -3.0, latMax: -1.0, lonMin: 36.5, lonMax: 37.5 },
     description:
       "An evidence-linked ecosystem check-up using the latest available environmental signals.",
     signals: [
@@ -150,6 +155,11 @@ export const reserves = {
     name: "Keoladeo National Park",
     country: "India",
     snapshotDate: "18 Aug 2026",
+    // Open-Meteo: centre point for rainfall fetch
+    lat: 27.1591,
+    lon: 77.5152,
+    // GBIF bounding box for wildlife occurrence count
+    bbox: { latMin: 26.6, latMax: 27.0, lonMin: 76.9, lonMax: 77.0 },
     description:
       "A wetland ecosystem check-up combining vegetation, climate, observation, and disturbance signals.",
     signals: [

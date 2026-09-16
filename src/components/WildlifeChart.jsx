@@ -30,7 +30,7 @@ function CustomTooltip({ active, payload, label, baseline, unit }) {
   );
 }
 
-function WildlifeChart({ wildlife }) {
+function WildlifeChart({ wildlife, mode }) {
   const values = wildlife.data.map((point) => point.records);
   const minValue = Math.min(...values, wildlife.baseline);
   const maxValue = Math.max(...values, wildlife.baseline);
@@ -49,7 +49,7 @@ function WildlifeChart({ wildlife }) {
 
         <div className="confidence-label wildlife-confidence">
           <span className="confidence-dot" />
-          {wildlife.confidence}
+          {mode === "live" ? "Live · GBIF" : wildlife.confidence}
         </div>
       </div>
 
