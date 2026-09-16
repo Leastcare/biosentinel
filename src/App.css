@@ -1102,3 +1102,288 @@ button { font: inherit; }
   .splash-progress-wrap { width: 210px; }
   .splash-skip { bottom: 22px; right: 18px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TASK 5 — Animated border sweep on card hover + glow ring on card-value
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* Conic-gradient border sweep: pseudo-element rotates around the card */
+@keyframes border-spin {
+  0%   { --angle: 0deg; }
+  100% { --angle: 360deg; }
+}
+
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.clickable-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--angle),
+    transparent 60%,
+    rgba(96, 165, 250, 0.85) 75%,
+    rgba(52, 211, 153, 0.7) 85%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.clickable-card:hover::before {
+  opacity: 1;
+  animation: border-spin 2.4s linear infinite;
+}
+
+/* Glow ring behind the card-value number */
+.card-value {
+  position: relative;
+  display: inline-block;
+}
+
+.card-value::after {
+  content: "";
+  position: absolute;
+  inset: -8px -12px;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.clickable-card:hover .card-value::after {
+  opacity: 1;
+}
+
+.warning  .card-value::after { background: radial-gradient(ellipse, rgba(251,191,36,0.18), transparent 70%); }
+.critical .card-value::after { background: radial-gradient(ellipse, rgba(248,113,113,0.18), transparent 70%); }
+.healthy  .card-value::after { background: radial-gradient(ellipse, rgba(52,211,153,0.18), transparent 70%); }
+
+/* Animated signal-line on hover — shifts colour left→right */
+@keyframes signal-scan {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.clickable-card:hover .signal-line {
+  background-size: 200% 100%;
+  animation: signal-scan 1.8s linear infinite;
+}
+
+.warning.clickable-card:hover  .signal-line {
+  background-image: linear-gradient(90deg, var(--amber), #fff8, var(--amber));
+}
+.critical.clickable-card:hover .signal-line {
+  background-image: linear-gradient(90deg, var(--red), #fff8, var(--red));
+}
+.healthy.clickable-card:hover  .signal-line {
+  background-image: linear-gradient(90deg, var(--green), #fff8, var(--green));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TASK 6 — Animated gradient mesh background
+══════════════════════════════════════════════════════════════════════════════ */
+
+@keyframes mesh-shift-1 {
+  0%,100% { transform: translate(0, 0)    scale(1);    opacity: 0.12; }
+  33%      { transform: translate(4%, 3%)  scale(1.08); opacity: 0.18; }
+  66%      { transform: translate(-3%, 5%) scale(0.94); opacity: 0.09; }
+}
+
+@keyframes mesh-shift-2 {
+  0%,100% { transform: translate(0, 0)     scale(1);    opacity: 0.10; }
+  33%      { transform: translate(-5%, -4%) scale(1.10); opacity: 0.16; }
+  66%      { transform: translate(4%, -2%)  scale(0.92); opacity: 0.07; }
+}
+
+@keyframes mesh-shift-3 {
+  0%,100% { transform: translate(0, 0)    scale(1);    opacity: 0.07; }
+  50%      { transform: translate(3%, -5%) scale(1.06); opacity: 0.13; }
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  width: 70vw;
+  height: 70vw;
+  top: -20vw;
+  left: -15vw;
+  background: radial-gradient(circle, rgba(16,185,129,0.22), transparent 65%);
+  animation: mesh-shift-1 18s ease-in-out infinite;
+}
+
+body::after {
+  width: 60vw;
+  height: 60vw;
+  bottom: -10vw;
+  right: -10vw;
+  background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 65%);
+  animation: mesh-shift-2 22s ease-in-out infinite;
+}
+
+/* third blob via app-shell pseudo */
+.app-shell::before {
+  content: "";
+  position: fixed;
+  width: 50vw;
+  height: 50vw;
+  top: 40%;
+  left: 35%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,78,59,0.12), transparent 65%);
+  animation: mesh-shift-3 26s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ensure content sits above the blobs */
+.app-shell > * { position: relative; z-index: 1; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TASK 7 — Glassmorphism on vital cards
+══════════════════════════════════════════════════════════════════════════════ */
+
+.vital-card {
+  background: rgba(16, 28, 48, 0.55);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* glass sheen — subtle diagonal highlight */
+.vital-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 50%;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(
+    160deg,
+    rgba(255,255,255,0.045) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* keep ::before (border sweep) above ::after (sheen) */
+.vital-card::before { z-index: 2; }
+
+/* card content must sit above both pseudo-elements */
+.vital-card > * { position: relative; z-index: 3; }
+
+/* glassmorphism on chart cards too */
+.chart-card {
+  background: rgba(13, 22, 40, 0.60);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow:
+    0 4px 28px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* glassmorphism on summary + source panels */
+.summary-panel,
+.source-panel,
+.map-card {
+  background: rgba(13, 22, 40, 0.55);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border-color: rgba(255,255,255,0.07);
+  box-shadow:
+    0 4px 28px rgba(0,0,0,0.24),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Hero layout — particles + world map
+══════════════════════════════════════════════════════════════════════════════ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* World map container */
+.world-map-wrap {
+  width: 340px;
+  height: 170px;
+  flex-shrink: 0;
+}
+
+.world-map-svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+}
+
+/* Pulse ring on the world map reserve dots */
+@keyframes map-dot-ring-pulse {
+  0%,100% { r: 14; opacity: 0.3; }
+  50%      { r: 20; opacity: 0.1; }
+}
+
+.map-dot-ring {
+  animation: map-dot-ring-pulse 2.5s ease-in-out infinite;
+}
+
+@media (max-width: 980px) {
+  .hero-right { align-items: flex-start; }
+  .world-map-wrap { width: 280px; height: 140px; }
+}
+
+@media (max-width: 640px) {
+  .world-map-wrap { display: none; }
+  .hero-right { align-items: flex-start; }
+}

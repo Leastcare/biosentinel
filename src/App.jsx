@@ -6,13 +6,15 @@ import {
   PawPrint,
   Thermometer,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NDVIChart from "./components/NDVIChart";
 import ClimateChart from "./components/ClimateChart";
 import WildlifeChart from "./components/WildlifeChart";
 import DisturbanceChart from "./components/DisturbanceChart";
 import ReserveMap from "./components/ReserveMap";
 import SplashScreen from "./components/SplashScreen";
+import HeroParticles from "./components/HeroParticles";
+import WorldMapSilhouette from "./components/WorldMapSilhouette";
 import { reserves } from "./data/reserves";
 import "./App.css";
 import SourcePanel from "./components/SourcePanel";
@@ -207,6 +209,23 @@ function App() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // ── 3D card tilt ────────────────────────────────────────────────────────────
+  const handleCardTilt = useCallback((e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rotateX = ((y - cy) / cy) * -8;
+    const rotateY = ((x - cx) / cx) * 8;
+    card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+  }, []);
+
+  const handleCardReset = useCallback((e) => {
+    e.currentTarget.style.transform = "";
+  }, []);
+
   return (
     <>
       {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
@@ -236,15 +255,19 @@ function App() {
       </header>
 
       <section className="hero">
-        <div>
+        <HeroParticles />
+        <div className="hero-content">
           <p className="eyebrow">ECOSYSTEM VITAL SIGNS</p>
           <h1>{reserve.name}</h1>
           <p className="subtitle">{reserve.description}</p>
         </div>
 
-        <div className="data-status">
-          <span className="live-dot" />
-          <span>Overall snapshot: {reserve.snapshotDate}</span>
+        <div className="hero-right">
+          <WorldMapSilhouette reserveId={selectedReserveId} />
+          <div className="data-status">
+            <span className="live-dot" />
+            <span>Overall snapshot: {reserve.snapshotDate}</span>
+          </div>
         </div>
       </section>
 
@@ -296,6 +319,8 @@ function App() {
                   if (sign.id === "disturbance") showDisturbanceEvidence();
                 }
               }}
+              onMouseMove={handleCardTilt}
+              onMouseLeave={handleCardReset}
             >
               {/* coloured top accent bar */}
               <div className="signal-line" />
