@@ -105,6 +105,9 @@ function DisturbanceChart({ disturbance }) {
               fill="#f87171"
               radius={[5, 5, 0, 0]}
               maxBarSize={42}
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-out"
             />
             <Legend
               verticalAlign="bottom"

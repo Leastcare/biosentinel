@@ -12,6 +12,7 @@ import ClimateChart from "./components/ClimateChart";
 import WildlifeChart from "./components/WildlifeChart";
 import DisturbanceChart from "./components/DisturbanceChart";
 import ReserveMap from "./components/ReserveMap";
+import SplashScreen from "./components/SplashScreen";
 import { reserves } from "./data/reserves";
 import "./App.css";
 import SourcePanel from "./components/SourcePanel";
@@ -27,6 +28,7 @@ const iconMap = {
 };
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [selectedReserveId, setSelectedReserveId] = useState("amboseli");
   const [activeEvidence, setActiveEvidence] = useState("");
 
@@ -195,9 +197,21 @@ function App() {
         }
       : reserve.disturbance;
 
+  // ── Sticky topbar scroll detection ─────────────────────────────────────────
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 10);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <main className="app-shell">
-      <header className="topbar">
+    <>
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
+      <main className={`app-shell${showSplash ? " app-hidden" : ""}`}>
+      <header className={`topbar${scrolled ? " topbar-scrolled" : ""}`}>
         <div className="brand">
           <div className="brand-mark">
             <Activity size={22} strokeWidth={2} />
@@ -394,7 +408,15 @@ function App() {
               ? "Fetching · Open-Meteo"
               : "Demo data · offline fallback"}
         </div>
-        <ClimateChart climate={climateProps} mode={rainfallMode} />
+        <div className={`chart-loading-wrap${rainfallMode === "loading" ? " is-loading" : ""}`}>
+          {rainfallMode === "loading" && (
+            <div className="chart-loading-overlay">
+              <span className="chart-spinner" />
+              <span className="chart-loading-label">Fetching rainfall data…</span>
+            </div>
+          )}
+          <ClimateChart climate={climateProps} mode={rainfallMode} />
+        </div>
       </section>
 
       {/* Wildlife — live GBIF */}
@@ -410,7 +432,15 @@ function App() {
               ? "Fetching · GBIF (this may take a few seconds)"
               : "Demo data · offline fallback"}
         </div>
-        <WildlifeChart wildlife={wildlifeProps} mode={wildlifeMode} />
+        <div className={`chart-loading-wrap${wildlifeMode === "loading" ? " is-loading" : ""}`}>
+          {wildlifeMode === "loading" && (
+            <div className="chart-loading-overlay">
+              <span className="chart-spinner" />
+              <span className="chart-loading-label">Fetching wildlife records…</span>
+            </div>
+          )}
+          <WildlifeChart wildlife={wildlifeProps} mode={wildlifeMode} />
+        </div>
       </section>
 
       {/* Disturbance — live NASA FIRMS */}
@@ -428,12 +458,21 @@ function App() {
                 ? "Checking · NASA FIRMS"
                 : "Demo data · offline fallback"}
         </div>
-        <DisturbanceChart disturbance={disturbanceProps} />
+        <div className={`chart-loading-wrap${firmsMode === "loading" ? " is-loading" : ""}`}>
+          {firmsMode === "loading" && (
+            <div className="chart-loading-overlay">
+              <span className="chart-spinner" />
+              <span className="chart-loading-label">Checking fire alerts…</span>
+            </div>
+          )}
+          <DisturbanceChart disturbance={disturbanceProps} />
+        </div>
       </section>
 
       <ReserveMap reserveId={reserve.id} reserveName={reserve.name} />
       <SourcePanel />
     </main>
+    </>
   );
 }
 

@@ -114,6 +114,9 @@ function WildlifeChart({ wildlife, mode }) {
                 stroke: "#0b1220",
                 strokeWidth: 2,
               }}
+              isAnimationActive={true}
+              animationDuration={800}
+              animationEasing="ease-out"
             />
             <Legend
               verticalAlign="bottom"
