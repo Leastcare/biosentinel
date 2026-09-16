@@ -297,37 +297,33 @@ function App() {
                 }
               }}
             >
+              {/* coloured top accent bar */}
               <div className="signal-line" />
 
+              {/* icon + status pill row */}
               <div className="card-top">
                 <span className="signal-icon">
-                  <SignalIcon size={23} strokeWidth={1.9} />
+                  <SignalIcon size={22} strokeWidth={1.8} />
                 </span>
-                <span className="signal-state">{sign.status}</span>
+                <span className={`card-status-pill card-status-pill--${sign.status}`}>
+                  {sign.status}
+                </span>
               </div>
 
-              <div
-                className="reading-row"
-                onClick={
-                  sign.id === "vegetation"
-                    ? showVegetationEvidence
-                    : sign.id === "climate"
-                      ? showClimateEvidence
-                      : sign.id === "wildlife"
-                        ? showWildlifeEvidence
-                        : sign.id === "disturbance"
-                          ? showDisturbanceEvidence
-                          : undefined
-                }
-              >
-                <span className={`reading ${sign.value.length > 7 ? "reading-long" : ""}`}>
-                  {sign.value}
-                </span>
-                <span className="trend-arrow">{sign.direction}</span>
+              {/* big stat block — no circle, no overflow */}
+              <div className="card-stat">
+                <span className="card-value">{sign.value}</span>
+                <span className="card-arrow">{sign.direction}</span>
               </div>
 
-              <h2>{sign.label}</h2>
-              <p>{sign.caption}</p>
+              {/* label + caption */}
+              <div className="card-footer">
+                <h2 className="card-label">{sign.label}</h2>
+                <p className="card-caption">{sign.caption}</p>
+              </div>
+
+              {/* subtle corner glow */}
+              <div className="card-glow" aria-hidden="true" />
             </button>
           );
         })}
