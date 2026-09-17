@@ -138,5 +138,3 @@ Keep these files out of Git:
 ```
 
 ## License
-
-Add a license appropriate for your project if you plan to distribute the code publicly.
